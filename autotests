@@ -1,0 +1,98 @@
+from playwright.sync_api import sync_playwright
+
+def poisk():
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=False)
+        page = browser.new_page()
+        page.goto("https://www.demoblaze.com/")
+        page.click('text=Phones')
+        page.wait_for_selector('text=Samsung galaxy s6')
+        page.click('text=Samsung galaxy s6')
+        page.wait_for_selector('.price-container')
+        price_element = page.locator('.price-container')
+        price_text = price_element.text_content()
+        if "$360" in price_text:
+            print("Правильно ")
+        else:
+            print('Нет ')
+        browser.close()
+
+def count_phones():
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=False)
+        page = browser.new_page()
+        page.goto("https://www.demoblaze.com/")
+        page.click('text=Phones')
+        page.wait_for_selector('.card')
+        count = page.locator('.card').count()
+        if count == 7:
+            print("ДА")
+        else:
+            print(f"НЕТ. Найдено: {count}")
+        browser.close()
+
+def proverka_price():
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=False)
+        page = browser.new_page()
+        page.goto("https://www.demoblaze.com/")
+        page.click('text=Phones')
+        page.wait_for_selector('text=Samsung galaxy s6')
+        page.click('text=Samsung galaxy s6')
+        page.wait_for_selector('.price-container')
+        price_element = page.locator('.price-container')
+        price_text = price_element.text_content()
+        if '$360' in price_text:
+            print('Samsung цена правильная')
+        else:
+            print('Samsung цена не та')
+
+        page.go_back()
+        page.wait_for_selector('text=Nokia lumia 1520')
+        page.click('text=Nokia lumia 1520')
+        page.wait_for_selector('.price-container')
+        price_element = page.locator('.price-container')
+        price_text = price_element.text_content()
+        if "$820" in price_text:
+            print('Nokia цена правильная')
+        else:
+            print('Nokia цена не та')
+        browser.close()
+
+def proverka():
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=False)
+        page = browser.new_page()
+        page.goto("https://www.demoblaze.com/")
+        
+        page.click('text=Phones')
+        page.wait_for_selector('text=Samsung galaxy s6')
+        page.click('text=Samsung galaxy s6')
+        page.on('dialog', lambda dialog: dialog.accept())
+        page.click('text=Add to cart')
+        page.wait_for_timeout(1000)
+        page.click('text=Cart')
+        page.wait_for_selector('text=Cart')
+        
+        if page.is_visible('text=Samsung galaxy s6'):
+            print('Товар в корзине')
+        else:
+            print('Товара нет')
+            browser.close()
+            return
+        
+        page.click('text=Delete')
+        page.wait_for_timeout(1000)
+        
+        if not page.is_visible('text=Samsung galaxy s6'):
+            print('Товар удалён')
+        else:
+            print('Товар не удалён')
+        
+        browser.close()
+
+if __name__ == '__main__':
+    poisk()
+    count_phones()
+    proverka_price()
+    proverka()
